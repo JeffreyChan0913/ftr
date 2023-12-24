@@ -203,6 +203,7 @@ def vote(MPTypes : dict) -> None:
         totalFileForMP                                      = CombindedPairResultVote[["MarketParticipant","File"]].groupby("MarketParticipant").nunique().reset_index()
         totalFileForMP.columns                              = ["MarketParticipant","TotalFiles"]
         CombindedPairResultVote                             = CombindedPairResultVote.loc[CombindedPairResultVote["Match_Count"] > 0]
+        # this get the highest vote across all files. still 1 to many 
         CombindedPairResultVote                             = CombindedPairResultVote.groupby(["MarketParticipant", "File"], group_keys=False).apply(lambda x: x.sort_values(["Match_Count","SSE"], ascending=[False, True]).head(1)).reset_index()
         CombindedPaireResultVoteSSE                         = CombindedPairResultVote[["MarketParticipant", "AOI", "SSE"]].groupby(["MarketParticipant", "AOI"]).sum().reset_index()
         CombindedPaireResultVoteSSE["SSE"]                  = round(CombindedPaireResultVoteSSE["SSE"],2)
@@ -223,7 +224,7 @@ def vote(MPTypes : dict) -> None:
         CombindedPairResultVote                             = CombindedPairResultVote.merge(MPTypes, on="MarketParticipant")
         CombindedPairResultWithErrorCountFile               = CombindedPairResultWithErrorCountFile.merge(MPTypes, on="MarketParticipant")
         CombindedPairResultOne2One                          = CombindedPairResultVote.groupby("MarketParticipant").head(1).reset_index()
-        CombindedPairResultVoteOne2ManyTop3                 = CombindedPairResultVote.groupby(["MarketParticipant"],group_key=False).apply(lambda x: x.sort_values(["VoteCountbyFile","SSE"], ascending=[False,True]).head(3)).reset_index() 
+        CombindedPairResultVoteOne2ManyTop3                 = CombindedPairResultVote.groupby(["MarketParticipant"],group_keys=False).apply(lambda x: x.sort_values(["VoteCountbyFile","SSE"], ascending=[False,True]).head(3)).reset_index() 
         CombindedPairResultVoteOne2ManyTop3.to_csv(voteFile[i][0:-4]+"_One2ManyTop3.csv")
         CombindedPairResultVote.to_csv(voteFile[i][0:-4]+"_One2Many.csv")
         CombindedPairResultOne2One.to_csv(voteFile[i][0:-4]+"_One2One.csv")
